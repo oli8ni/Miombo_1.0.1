@@ -1,0 +1,8 @@
+streamlit>=1.40.0
+folium>=0.18.0
+streamlit-folium>=0.23.0
+earthengine-api>=1.1.0
+pandas>=2.0.0
+numpy>=1.26.0
+requests>=2.32.0
+python-dateutil>=2.9.0
