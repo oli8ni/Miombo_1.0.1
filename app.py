@@ -159,17 +159,19 @@ def init_state():
 # 3) GOOGLE EARTH ENGINE AVEC CACHE
 # ============================================================
 
-def init_gee():
-    """Initialise GEE avec graceful degradation"""
-    if st.session_state.gee_ok:
-        return True
-    try:
-        ee.Initialize()
-        st.session_state.gee_ok = True
-        return True
-    except Exception as e:
-        st.session_state.gee_ok = False
-        return False
+# Initialisation Earth Engine avec secrets
+try:
+    gee_creds = st.secrets["gee_service_account"]
+    credentials = ee.ServiceAccountCredentials(
+        gee_creds["client_email"],
+        key_data=gee_creds["private_key"]
+    )
+    ee.Initialize(credentials)
+    st.session_state.gee_ok = True
+except Exception as e:
+    st.error(f"Erreur GEE: {e}")
+    st.session_state.gee_ok = False
+
 
 def get_ndvi_series(lat: float, lng: float, radius_km: float, months: int = 6) -> pd.DataFrame:
     """
