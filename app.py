@@ -166,6 +166,7 @@ def init_state():
 # 3) GOOGLE EARTH ENGINE AVEC CACHE
 # ============================================================
 
+<<<<<<< HEAD
 def init_gee():
     """Initialise GEE avec graceful degradation - ne crashe jamais"""
     if st.session_state.gee_ok:
@@ -205,6 +206,21 @@ def init_gee():
             pass
         st.session_state.gee_ok = False
         return False
+=======
+# Initialisation Earth Engine avec secrets
+try:
+    gee_creds = st.secrets["gee_service_account"]
+    credentials = ee.ServiceAccountCredentials(
+        gee_creds["client_email"],
+        key_data=gee_creds["private_key"]
+    )
+    ee.Initialize(credentials)
+    st.session_state.gee_ok = True
+except Exception as e:
+    st.error(f"Erreur GEE: {e}")
+    st.session_state.gee_ok = False
+
+>>>>>>> 88bdd18515278f944da103e53144d25f4cb9736a
 
 def get_ndvi_series(lat: float, lng: float, radius_km: float, months: int = 6) -> pd.DataFrame:
     """
@@ -1075,7 +1091,7 @@ def main():
                 except Exception as e:
                     st.error(f"Erreur format: {e}")
 
-st.subheader("🎯 Zone d'analyse")
+        st.subheader("🎯 Zone d'analyse")
         zone_names = {z['name']: z for z in st.session_state.saved_zones}
         selected = st.selectbox("Zone", list(zone_names.keys()))
         st.session_state.active_zone = zone_names[selected]
