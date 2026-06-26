@@ -26,7 +26,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-import ee
+# GEE - import optionnel (app fonctionne sans)
+try:
+    import ee
+    EE_AVAILABLE = True
+except ImportError:
+    EE_AVAILABLE = False
+    ee = None
+
 import folium
 from folium.plugins import Draw, HeatMap
 from streamlit_folium import st_folium
@@ -160,14 +167,42 @@ def init_state():
 # ============================================================
 
 def init_gee():
-    """Initialise GEE avec graceful degradation"""
+    """Initialise GEE avec graceful degradation - ne crashe jamais"""
     if st.session_state.gee_ok:
         return True
+    if not EE_AVAILABLE:
+        st.session_state.gee_ok = False
+        return False
     try:
+        # Essaie d'abord sans credentials (mode local)
         ee.Initialize()
         st.session_state.gee_ok = True
         return True
-    except Exception as e:
+    except:
+        # OPTION B : Clés plates dans secrets
+        try:
+            gee_email = st.secrets.get("GEE_SERVICE_ACCOUNT", "")
+            gee_key = st.secrets.get("GEE_PRIVATE_KEY", "")
+            if gee_email and gee_key:
+                credentials = ee.ServiceAccountCredentials(gee_email, key_data=gee_key)
+                ee.Initialize(credentials)
+                st.session_state.gee_ok = True
+                return True
+        except:
+            pass
+        # OPTION C : Section [gee_service_account]
+        try:
+            gee_cfg = st.secrets.get("gee_service_account", None)
+            if gee_cfg:
+                credentials = ee.ServiceAccountCredentials(
+                    gee_cfg["client_email"],
+                    key_data=gee_cfg["private_key"]
+                )
+                ee.Initialize(credentials)
+                st.session_state.gee_ok = True
+                return True
+        except:
+            pass
         st.session_state.gee_ok = False
         return False
 
