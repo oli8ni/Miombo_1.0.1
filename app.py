@@ -1042,7 +1042,7 @@ def main():
                 except Exception as e:
                     st.error(f"Erreur format: {e}")
 
-st.subheader("🎯 Zone d'analyse")
+    st.subheader("🎯 Zone d'analyse")
         zone_names = {z['name']: z for z in st.session_state.saved_zones}
         selected = st.selectbox("Zone", list(zone_names.keys()))
         st.session_state.active_zone = zone_names[selected]
